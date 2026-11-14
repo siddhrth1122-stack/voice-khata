@@ -1,0 +1,3 @@
+# Personal Claude Code settings for this computer only
+.claude/settings.local.json
+.DS_Store

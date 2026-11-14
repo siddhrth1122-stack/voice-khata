@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Voice Khata</title>
+<meta name="description" content="Speak in English or Hindi and see your words as text.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&display=swap">
+<style>
+  /* Layout: one centered tile; the mic sits in the middle, the words fill the tile around it. */
+  :root {
+    --bg: #eef1f6;
+    --tile: #ffffff;
+    --ink: #16203a;
+    --muted: #5d6782;
+    --line: #d7dcea;
+    --accent: #2f4fd8;
+    --accent-ink: #ffffff;
+    --live: #d93a4a;
+    --font: "Mukta", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1322; --tile: #171e33; --ink: #e8ecf8; --muted: #9aa3bf;
+      --line: #2a3352; --accent: #7d95ff; --accent-ink: #0e1322; --live: #ff6b78;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1322; --tile: #171e33; --ink: #e8ecf8; --muted: #9aa3bf;
+    --line: #2a3352; --accent: #7d95ff; --accent-ink: #0e1322; --live: #ff6b78;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.5;
+    display: grid;
+    place-items: center;
+    padding-block: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .tile {
+    width: 100%;
+    max-width: 640px;
+    background: var(--tile);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    display: grid;
+    gap: 20px;
+  }
+
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  h1 { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
+  h1 span { color: var(--muted); font-weight: 600; }
+
+  .langs { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 3px; }
+  .langs button {
+    font: inherit; font-size: 0.95rem; font-weight: 600;
+    border: 0; border-radius: 999px; padding: 4px 14px; cursor: pointer;
+    background: transparent; color: var(--muted);
+  }
+  .langs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+  .stage { display: grid; justify-items: center; gap: 10px; padding-block: 8px; }
+
+  .mic {
+    width: 148px; height: 148px; max-width: 60vw; max-height: 60vw;
+    border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink);
+    display: grid; place-items: center;
+    transition: transform 0.15s ease, background 0.2s ease;
+    position: relative;
+  }
+  .mic:hover { transform: scale(1.03); }
+  .mic svg { width: 44%; height: 44%; }
+  .mic.listening { background: var(--live); }
+  .mic.listening::after {
+    content: ""; position: absolute; inset: -10px; border-radius: 50%;
+    border: 3px solid var(--live); opacity: 0.5;
+    animation: pulse 1.4s ease-out infinite;
+  }
+  @keyframes pulse { from { transform: scale(0.92); opacity: 0.6; } to { transform: scale(1.15); opacity: 0; } }
+  .mic:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  .status { margin: 0; color: var(--muted); font-size: 0.95rem; text-align: center; min-height: 1.5em; }
+  .status.error { color: var(--live); }
+
+  .words {
+    min-height: 140px; max-height: 40vh; overflow-y: auto;
+    border-top: 1px dashed var(--line);
+    padding-top: 16px;
+    font-size: 1.35rem; line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .words .placeholder { color: var(--muted); font-size: 1.05rem; }
+  .words .interim { color: var(--muted); }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+  .actions button {
+    font: inherit; font-size: 0.95rem; font-weight: 600;
+    padding: 6px 16px; border-radius: 10px; cursor: pointer;
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+  }
+  .actions button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mic, .mic:hover { transition: none; transform: none; }
+    .mic.listening::after { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="tile">
+  <header>
+    <h1>Voice Khata <span>· बोलो, लिखो</span></h1>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" id="lang-en" data-lang="en-IN" aria-pressed="true">English</button>
+      <button type="button" id="lang-hi" data-lang="hi-IN" aria-pressed="false">हिंदी</button>
+    </div>
+  </header>
+
+  <section class="stage">
+    <button type="button" class="mic" id="mic" aria-label="Start listening">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"></rect>
+        <path d="M5 10a7 7 0 0 0 14 0"></path>
+        <line x1="12" y1="17" x2="12" y2="22"></line>
+      </svg>
+    </button>
+    <p class="status" id="status" role="status">Tap the mic and start speaking.</p>
+  </section>
+
+  <div class="words" id="words" aria-live="polite">
+    <span class="placeholder">Your words will appear here. Try “Aaj ka hisaab likho” in Hindi or “Hello, how are you?” in English.</span>
+  </div>
+
+  <div class="actions">
+    <button type="button" id="copy" disabled>Copy</button>
+    <button type="button" id="clear" disabled>Clear</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var micBtn = document.getElementById("mic");
+  var statusEl = document.getElementById("status");
+  var wordsEl = document.getElementById("words");
+  var copyBtn = document.getElementById("copy");
+  var clearBtn = document.getElementById("clear");
+  var langBtns = document.querySelectorAll(".langs button");
+
+  var lang = "en-IN";
+  var finalText = "";
+  var interimText = "";
+  var wantListening = false;
+  var recognition = null;
+
+  var messages = {
+    "en-IN": { idle: "Tap the mic and start speaking.", listening: "Listening in English… tap again to stop." },
+    "hi-IN": { idle: "माइक दबाइए और बोलना शुरू कीजिए।", listening: "हिंदी में सुन रहा है… रोकने के लिए फिर दबाइए।" }
+  };
+
+  function setStatus(text, isError) {
+    statusEl.textContent = text;
+    statusEl.classList.toggle("error", !!isError);
+  }
+
+  function render() {
+    wordsEl.textContent = "";
+    if (!finalText && !interimText) {
+      var ph = document.createElement("span");
+      ph.className = "placeholder";
+      ph.textContent = "Your words will appear here. Try “Aaj ka hisaab likho” in Hindi or “Hello, how are you?” in English.";
+      wordsEl.appendChild(ph);
+    } else {
+      wordsEl.appendChild(document.createTextNode(finalText));
+      if (interimText) {
+        var span = document.createElement("span");
+        span.className = "interim";
+        span.textContent = (finalText ? " " : "") + interimText;
+        wordsEl.appendChild(span);
+      }
+      wordsEl.scrollTop = wordsEl.scrollHeight;
+    }
+    var hasText = finalText.trim().length > 0;
+    copyBtn.disabled = !hasText;
+    clearBtn.disabled = !hasText;
+  }
+
+  function setListeningUI(on) {
+    micBtn.classList.toggle("listening", on);
+    micBtn.setAttribute("aria-label", on ? "Stop listening" : "Start listening");
+    setStatus(on ? messages[lang].listening : messages[lang].idle);
+  }
+
+  if (!SpeechRecognition) {
+    micBtn.disabled = true;
+    setStatus("This browser can't turn speech into text. Please open this page in Google Chrome or Microsoft Edge.", true);
+    return;
+  }
+
+  function createRecognition() {
+    var r = new SpeechRecognition();
+    r.lang = lang;
+    r.continuous = true;
+    r.interimResults = true;
+
+    r.onresult = function (event) {
+      interimText = "";
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        var piece = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalText = (finalText ? finalText.replace(/\s+$/, "") + " " : "") + piece.trim();
+        } else {
+          interimText += piece;
+        }
+      }
+      render();
+    };
+
+    r.onerror = function (event) {
+      if (event.error === "no-speech") return; // silence; keep going
+      wantListening = false;
+      var text = {
+        "not-allowed": "Microphone access was blocked. Click the lock icon in the address bar, allow the microphone, then try again.",
+        "service-not-allowed": "Microphone access was blocked. Click the lock icon in the address bar, allow the microphone, then try again.",
+        "audio-capture": "No microphone was found. Plug one in or check your sound settings.",
+        "network": "Speech recognition needs an internet connection. Check your connection and try again.",
+        "language-not-supported": "This browser doesn't support that language for speech."
+      }[event.error] || ("Something went wrong (" + event.error + "). Tap the mic to try again.");
+      setListeningUI(false);
+      setStatus(text, true);
+    };
+
+    r.onend = function () {
+      interimText = "";
+      render();
+      // Chrome stops after a pause; restart if the user hasn't pressed stop.
+      if (wantListening) {
+        try { r.start(); } catch (e) { wantListening = false; setListeningUI(false); }
+      } else {
+        setListeningUI(false);
+      }
+    };
+    return r;
+  }
+
+  function start() {
+    recognition = createRecognition();
+    wantListening = true;
+    try {
+      recognition.start();
+      setListeningUI(true);
+    } catch (e) {
+      wantListening = false;
+      setStatus("Couldn't start the microphone. Tap to try again.", true);
+    }
+  }
+
+  function stop() {
+    wantListening = false;
+    if (recognition) recognition.stop();
+    setListeningUI(false);
+  }
+
+  micBtn.addEventListener("click", function () {
+    if (wantListening) stop(); else start();
+  });
+
+  langBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      lang = btn.getAttribute("data-lang");
+      langBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(b === btn)); });
+      document.documentElement.lang = lang === "hi-IN" ? "hi" : "en";
+      if (wantListening) { stop(); start(); } else { setListeningUI(false); }
+    });
+  });
+
+  copyBtn.addEventListener("click", function () {
+    var text = finalText.trim();
+    if (!navigator.clipboard) { setStatus("Select the text and copy it with Ctrl/Cmd + C."); return; }
+    navigator.clipboard.writeText(text).then(function () {
+      setStatus("Copied.");
+    }, function () {
+      setStatus("Couldn't copy. Select the text and copy it with Ctrl/Cmd + C.", true);
+    });
+  });
+
+  clearBtn.addEventListener("click", function () {
+    finalText = ""; interimText = "";
+    render();
+    setStatus(wantListening ? messages[lang].listening : messages[lang].idle);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

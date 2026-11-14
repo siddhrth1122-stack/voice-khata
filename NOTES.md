@@ -11,9 +11,16 @@
 - GitHub repo (private): https://github.com/siddhrth1122-stack/voice-khata, branch `main`
 - Auto-push: `.git/hooks/post-commit` pushes every new commit to GitHub. If a push fails, the commit stays local; run `git push` later.
 
+# The app
+
+- `index.html`: one-page web app. Big mic button; speech becomes text in the same tile. English (`en-IN`) / हिंदी (`hi-IN`) toggle; Copy and Clear buttons.
+- Uses the browser's Web Speech API (`SpeechRecognition`), so it works in Chrome and Edge only (not Firefox). It needs HTTPS and internet, because Chrome sends the audio to Google to turn it into text.
+- Hosted on GitHub Pages from `main` (root). Repo made **public** for this (free plan). Live link: https://siddhrth1122-stack.github.io/voice-khata/
+- `.gitignore` keeps `.claude/settings.local.json` out of git.
+
 # Working agreements
 
-- Claude adds every action it takes to the Log below, without waiting to be asked. This file is the context for new chat sessions.
+- Claude logs only necessary info (decisions, setup, files/features added, open to-dos) without being asked. Skip trivial actions. Keep entries short. This file is the context for new chat sessions.
 - Claude only commits when asked.
 
 # Log
@@ -21,3 +28,5 @@
 - **2026-11-14** Explained Claude Code basics (modes, /help, /model, /clear). Created `NOTES.md`.
 - **2026-11-14** Confirmed folder is linked to the existing private repo `voice-khata`. Added the `post-commit` hook to auto-push every commit.
 - **2026-11-14** Filled in NOTES.md with concepts, project setup, and this log. Committed it (first test of auto-push).
+- **2026-11-14** Ran /doctor. Disabled 12 account plugins for this folder only in `.claude/settings.local.json` (they're used in other chat windows; keep this file out of commits). Set auto mode as default in `~/.claude/settings.json`. To-do: disable unused connectors here via `/mcp`.
+- **2026-11-14** Built the Voice Khata mic app (`index.html`), added `.gitignore`, made the repo public and turned on GitHub Pages.
