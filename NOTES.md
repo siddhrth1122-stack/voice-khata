@@ -22,6 +22,7 @@
 
 - Claude logs only necessary info (decisions, setup, files/features added, open to-dos) without being asked. Skip trivial actions. Keep entries short. This file is the context for new chat sessions.
 - Claude only commits when asked.
+- Use subagents for parallel help, not agent teams (teams are turned off here).
 
 # Log
 
@@ -30,3 +31,8 @@
 - **2026-11-14** Filled in NOTES.md with concepts, project setup, and this log. Committed it (first test of auto-push).
 - **2026-11-14** Ran /doctor. Disabled 12 account plugins for this folder only in `.claude/settings.local.json` (they're used in other chat windows; keep this file out of commits). Set auto mode as default in `~/.claude/settings.json`. To-do: disable unused connectors here via `/mcp`.
 - **2026-11-14** Built the Voice Khata mic app (`index.html`), added `.gitignore`, made the repo public and turned on GitHub Pages.
+- **2026-11-15** Decided to use subagents, not agent teams. Removed the agent teams setting from `.claude/settings.local.json` and deleted the `docs/` folder about teams.
+- **2026-11-15** Set up the /spec → /build workflow: 4 subagents in `.claude/agents/` (product-manager on Fable with Opus fallback, developer, qa-tester, code-reviewer), commands in `.claude/commands/`, `WORKFLOW.md`, `CLAUDE.md`. /spec marks an approved spec with `Status: APPROVED` on line 1; /build requires it.
+- **2026-11-15** Installed Node.js v26.13.1 (npm 11.20.0) with Homebrew at `/opt/homebrew/bin`. That folder is not on the terminal PATH yet, so `node` only runs by full path. User connected the Vercel connector; its tools did not appear in this session (needs a Claude Code restart).
+- **2026-11-15** Checked readiness for a full app. Vercel connector tools now show up in this session. Still open: workflow files not committed, `node` not on PATH, no app idea/spec yet.
+- **2026-11-15** Added designer (Opus) and architect (Fable → Opus fallback) agents, design step + approval pause in /build, new /deploy command. Updated developer, qa-tester, code-reviewer, WORKFLOW.md, CLAUDE.md.
