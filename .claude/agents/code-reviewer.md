@@ -53,3 +53,7 @@ Write `review.md` at the project root. List each issue as **BLOCKING** or **NON-
 End with one verdict line: `VERDICT: APPROVED` (no BLOCKING issues) or `VERDICT: CHANGES REQUIRED`.
 
 Never edit source code. The only file you write is `review.md`.
+
+## Reading large files
+
+`spec.md`, `design.md` and `architecture.md` are long. Read one whole only when you need all of it, for example when writing that file from scratch, the first PLAN, a full QA pass or a full review. Otherwise search for the parts you need (Grep for the decision, criterion or section number) and read only those lines.

@@ -45,3 +45,7 @@ Describe layouts in words or simple text wireframes.
 - Design only what the spec requires. Add no screens or features.
 - Never write code.
 - The only file you write is `design.md`.
+
+## Reading large files
+
+`spec.md`, `design.md` and `architecture.md` are long. Read one whole only when you need all of it, for example when writing that file from scratch, the first PLAN, a full QA pass or a full review. Otherwise search for the parts you need (Grep for the decision, criterion or section number) and read only those lines.

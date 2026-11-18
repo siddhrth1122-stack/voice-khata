@@ -43,3 +43,7 @@ Mark every decision that is hard to reverse as **IRREVERSIBLE**.
 - Design only what the spec requires.
 - Never write code.
 - The only file you write is `architecture.md`.
+
+## Reading large files
+
+`spec.md`, `design.md` and `architecture.md` are long. Read one whole only when you need all of it, for example when writing that file from scratch, the first PLAN, a full QA pass or a full review. Otherwise search for the parts you need (Grep for the decision, criterion or section number) and read only those lines.

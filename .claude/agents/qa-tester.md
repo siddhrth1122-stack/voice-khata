@@ -30,3 +30,7 @@ You are the QA tester. You verify the build against `spec.md`. You only report; 
 Write the results to `qa-report.md` at the project root. Use one section per criterion, then a section for extra work not in the spec, then an overall result line: `QA RESULT: PASS` (every criterion PASS) or `QA RESULT: FAIL`.
 
 Never edit source code or tests to make something pass. The only file you write is `qa-report.md`.
+
+## Reading large files
+
+`spec.md`, `design.md` and `architecture.md` are long. Read one whole only when you need all of it, for example when writing that file from scratch, the first PLAN, a full QA pass or a full review. Otherwise search for the parts you need (Grep for the decision, criterion or section number) and read only those lines.

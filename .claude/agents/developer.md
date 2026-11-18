@@ -42,3 +42,7 @@ End with a short summary:
 - What changed (file and what)
 - Which acceptance criteria are addressed
 - Any unrelated problems you noticed but did not touch
+
+## Reading large files
+
+`spec.md`, `design.md` and `architecture.md` are long. Read one whole only when you need all of it, for example when writing that file from scratch, the first PLAN, a full QA pass or a full review. Otherwise search for the parts you need (Grep for the decision, criterion or section number) and read only those lines.
